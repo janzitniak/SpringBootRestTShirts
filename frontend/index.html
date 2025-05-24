@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <title>Tričká - REST klient</title>
+</head>
+<body>
+    <h1>Zoznam tričiek</h1>
+    <button onclick="getTshirts()">Načítať tričká</button>
+    <ul id="tshirt-list"></ul>
+
+    <h2>Pridať nové tričko</h2>
+    <form onsubmit="addTshirt(event)">
+        <label>Názov: <input type="text" id="name" required></label><br>
+        <label>Veľkosť: <input type="text" id="size" required></label><br>
+        <label>Farba: <input type="text" id="color" required></label><br>
+        <label>Výrobca: <input type="text" id="manufacturer" required></label><br>
+        <button type="submit">Pridať</button>
+    </form>
+
+    <script>
+        const API_URL = "http://localhost:8080/api/tshirts";
+
+        function getTshirts() {
+            fetch(API_URL)
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById("tshirt-list");
+                    list.innerHTML = "";
+                    data.forEach(tshirt => {
+                        const item = document.createElement("li");
+                        item.textContent = `${tshirt.name} (${tshirt.size}, ${tshirt.color}, ${tshirt.manufacturer})`;
+                        list.appendChild(item);
+                    });
+                });
+        }
+
+        function addTshirt(event) {
+            event.preventDefault();
+            const tshirt = {
+                name: document.getElementById("name").value,
+                size: document.getElementById("size").value,
+                color: document.getElementById("color").value,
+                manufacturer: document.getElementById("manufacturer").value
+            };
+
+            fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(tshirt)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Tričko bolo pridané!");
+                    getTshirts();
+                } else {
+                    alert("Chyba pri pridávaní trička.");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
